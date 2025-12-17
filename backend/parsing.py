@@ -4,6 +4,7 @@ import re
 
 
 def extract_blocks(file_path):
+
     doc = fitz.open(file_path)
     pages = []
 
@@ -44,9 +45,9 @@ def extract_blocks(file_path):
         # JUST TEXT IN THE BOUNDARY
         # Identify real text blocks
         real_blocks = []
-        for (text, size, x0, x1, y0, y1) in block_data:
+        for (text, size, x0, y0, x1, y1) in block_data:
             if len(text) > 40:   # if line is longer than 40 characters, it's real text
-                real_blocks.append((text, size, x0, x1, y0, y1))
+                real_blocks.append((text, size, x0, y0, x1, y1))
 
         # finding the left and right boundary of real text
         if real_blocks:
@@ -54,12 +55,12 @@ def extract_blocks(file_path):
             max_x = max(b[3] for b in real_blocks)  # x1 right
         else:
             min_x = min(x0 for (_, _, x0, _, _, _) in block_data)
-            max_x = max(x1 for (_, _, _, x1, _, _) in block_data)
+            max_x = max(x1 for (_, _, _, _, x1, _) in block_data)
 
         # keep only blocks inside this region
         clean_block_data = [
-            (text, size, x0, x1, y0, y1)
-            for (text, size, x0, x1, y0, y1) in block_data
+            (text, size, x0, y0, x1, y1)
+            for (text, size, x0, y0, x1, y1) in block_data
             if x0 >= min_x - 5 and x1 <= max_x + 5   # tiny tolerance
         ]
 
@@ -79,9 +80,18 @@ def extract_blocks(file_path):
         pages.append({
             "page": page_number + 1,
             "blocks": final_blocks_for_processing,
-            "body_text_size": body_text_size
+            "body_text_size": body_text_size,
+            # "fitz_page_object": page
+            # INSTEAD, add what's needed for rendering (assuming you added this):
+            "file_path": file_path,
+            "page_index": page_number
         })
 
-    return pages
+
+    if pages:
+        print(f"DEBUG: extract_blocks returning list of length: {len(pages)}")
+        print(f"DEBUG: Type of first item in pages_data: {type(pages[0])}")
+    # print(f"DEBUG: Returning open document object (ID: {id(doc)}) and page data.")
+    return doc, pages
 
 

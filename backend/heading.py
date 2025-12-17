@@ -24,6 +24,11 @@ def detect_heading(text, block_font_size, body_text_size, y0, previousBlock_y1):
     clean_text = text.strip()
     no_period = not clean_text.endswith(".")
 
+    #Handle the very first block on a page:
+    if previousBlock_y1 is None: # or if previousBlock_y1 == 0.0
+        # Skip the gap check for the first block, or return None immediately if you only check text properties
+        return None
+
     # Spacing pattern check
     spaced = previousBlock_y1 is None or (y0 - previousBlock_y1 > 10)
 
