@@ -98,6 +98,29 @@ def repair_sentences(page_sentences, page_number):
         return repaired_sentences
 
 
+
+def split_text_into_sentences(text):
+    """
+    Split a plain string (text area input) into sentences using spaCy.
+    """
+    # Replace line breaks with spaces
+    text = text.replace("\n", " ")
+
+    doc = nlp(text)
+    sentences = []
+
+    for sent in doc.sents:
+        clean_sentence = sent.text.strip()
+        if clean_sentence:
+            sentences.append({
+                "sentence": clean_sentence,
+                "header": None,
+                "is_header": False,
+                "is_formula": False
+            })
+    return sentences
+
+
 def split_into_sentences(pages):
 
     sentences = []

@@ -1,8 +1,9 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from .parsing import extract_blocks
 import os
 import uuid
 from .sentences import split_into_sentences
+from .sentences import split_text_into_sentences
 
 app = FastAPI()
 
@@ -14,7 +15,7 @@ def read_root():
 # app = FastAPI()
 
 @app.post("/parse")
-async  def parse_paper(file: UploadFile = File(...)):
+async  def parse_file(file: UploadFile = File(...)):
 
     # FastAPI gives the PDF in memory, not as a real file.But our PDF extractor (PyMuPDF) only works with real files on disk.
 
@@ -58,7 +59,19 @@ async  def parse_paper(file: UploadFile = File(...)):
             except Exception as cleanup_error:
                 print(f"Cleanup warning: {cleanup_error}")
 
-@app.post("/summarize")
-async  def summarize_paper():
-    return {"message": "summarize endpoint reached"}
+
+@app.post("/Summarize_text")
+async  def summarize_text(request: Request):
+    # Read the raw JSON from the request
+    data = await request.json()
+
+    # Access the text manually
+    text = data.get("text", "")
+    if not text.strip():
+        return {"error": "No text provided"}
+
+    sentences = split_text_into_sentences(text)
+    return {"sentences": sentences}
+
+
 
