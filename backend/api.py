@@ -4,6 +4,7 @@ import os
 import uuid
 from .sentences import split_into_sentences
 from .sentences import split_text_into_sentences
+from .summarizer import summarize
 
 app = FastAPI()
 
@@ -41,7 +42,8 @@ async  def parse_file(file: UploadFile = File(...)):
         sentences = split_into_sentences(pages_data)
 
         # 3. Clean up and return
-        return {"sentences": sentences}
+        summary = summarize(sentences, top_K=5)
+        return {"sentences": summary}
 
     except Exception as e:
         print(f"CRITICAL API ERROR: {e}")
@@ -71,7 +73,9 @@ async  def summarize_text(request: Request):
         return {"error": "No text provided"}
 
     sentences = split_text_into_sentences(text)
-    return {"sentences": sentences}
+
+    summary = summarize(sentences, top_K=5)
+    return {"sentences": summary}
 
 
 

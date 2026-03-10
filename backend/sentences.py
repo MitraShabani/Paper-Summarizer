@@ -104,6 +104,7 @@ def split_text_into_sentences(text):
     Split a plain string (text area input) into sentences using spaCy.
     """
     # Replace line breaks with spaces
+    text = fix_hyphenation(text)
     text = text.replace("\n", " ")
 
     doc = nlp(text)
