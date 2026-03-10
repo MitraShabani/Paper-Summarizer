@@ -43,9 +43,8 @@ if st.button("Submit"):
     # Display results
     if result_sentences:
         st.subheader("Summary")
-        for r in result_sentences:
-            st.write(r)
-
+        summary_text = "\n".join([s["sentence"] for s in result_sentences])
+        st.text_area("Full Summary", value=summary_text, height=400)
 
 
 

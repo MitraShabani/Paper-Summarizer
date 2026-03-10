@@ -1,7 +1,7 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
-def summarize(sentences, top_K=5):
+def summarize(sentences):
 
     text_sentences = [s["sentence"] for s in sentences]
 
@@ -26,8 +26,10 @@ def summarize(sentences, top_K=5):
     scores = X.sum(axis=1)
     ranked = np.argsort(scores.A1)[::-1] # sort the array in descending order
 
+    # Restore text order
+    ranked = sorted(ranked)
     summary = []
-    for index in ranked[:top_K]:
+    for index in ranked:
         summary.append(sentences[index])
 
     return summary

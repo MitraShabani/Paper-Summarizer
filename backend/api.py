@@ -42,7 +42,7 @@ async  def parse_file(file: UploadFile = File(...)):
         sentences = split_into_sentences(pages_data)
 
         # 3. Clean up and return
-        summary = summarize(sentences, top_K=5)
+        summary = summarize(sentences)
         return {"sentences": summary}
 
     except Exception as e:
@@ -74,7 +74,7 @@ async  def summarize_text(request: Request):
 
     sentences = split_text_into_sentences(text)
 
-    summary = summarize(sentences, top_K=5)
+    summary = summarize(sentences)
     return {"sentences": summary}
 
 
