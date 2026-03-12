@@ -22,9 +22,9 @@ def fix_hyphenation(text):
 
     return text
 
-def repair_sentences(page_sentences, page_number):
+def repair_data(page_sentences, page_number):
         # HYPHENATION
-        repaired_sentences = []
+        repaired_data = []
         i = 0
 
         while i < len(page_sentences):
@@ -35,7 +35,7 @@ def repair_sentences(page_sentences, page_number):
 
             # skip Formulas/Headers entirely in the 'while' loop
             if current.get("is_formula") or current.get("is_header"):
-                repaired_sentences.append({
+                repaired_data.append({
                     "page": page_number,
                     "sentence": current["sentence"],
                     "header": current["header"],
@@ -80,22 +80,22 @@ def repair_sentences(page_sentences, page_number):
 
                 doc = nlp(merged_text)
                 for new_sent in doc.sents:
-                    cleanSentence = new_sent.text.strip()
-                    if cleanSentence:
-                        repaired_sentences.append({
+                    cleanData = new_sent.text.strip()
+                    if cleanData:
+                        repaired_data.append({
                             "page": page_number,
-                            "sentence": cleanSentence,
+                            "sentence": cleanData,
                             "header": merged_header
                         })
             else:
                 # If no merge, process the sentence normally
-                repaired_sentences.append({
+                repaired_data.append({
                     "page": page_number,
                     "sentence": current["sentence"],
                     "header": current["header"]
                 })
                 i += 1
-        return repaired_sentences
+        return repaired_data
 
 
 
@@ -108,23 +108,23 @@ def split_text_into_sentences(text):
     text = text.replace("\n", " ")
 
     doc = nlp(text)
-    sentences = []
+    data = []
 
     for sent in doc.sents:
-        clean_sentence = sent.text.strip()
-        if clean_sentence:
-            sentences.append({
-                "sentence": clean_sentence,
+        clean_data = sent.text.strip()
+        if clean_data:
+            data.append({
+                "sentence": clean_data,
                 "header": None,
                 "is_header": False,
                 "is_formula": False
             })
-    return sentences
+    return data
 
 
 def split_into_sentences(pages):
 
-    sentences = []
+    data = []
     for page in pages:
 
 
@@ -136,7 +136,7 @@ def split_into_sentences(pages):
         file_path = page.get("file_path")
         page_idx = page.get("page_index")
 
-        page_sentences = []   # collecting sentences for the current page
+        page_data = []   # collecting sentences for the current page
         previousBlock_y1 = 0.0
         current_header = None
         math_block_index = 0
@@ -153,7 +153,7 @@ def split_into_sentences(pages):
                 header = detect_heading(block_text, block_font_size, body_text_size, y0, previousBlock_y1)
                 if header:
                     current_header = header
-                    page_sentences.append({
+                    page_data.append({
                         "sentence": block_text.strip(),
                         "header": None,
                         "is_header": True
@@ -168,7 +168,7 @@ def split_into_sentences(pages):
                         image_path = render_block_to_image(page_object, block_coords, page_number, math_block_index)
                         # Convert image to LaTeX using Pix2Text
                         latex_string = convert_image_to_LaTeX(image_path)
-                        page_sentences.append({
+                        page_data.append({
                             "sentence": latex_string,
                             "header": current_header,
                             "is_formula": True,
@@ -220,7 +220,7 @@ def split_into_sentences(pages):
 
                         cleanSentence = sent.text.strip()
                         if cleanSentence:
-                            page_sentences.append({
+                            page_data.append({
                                 "sentence": cleanSentence,
                                 "header": current_header,
                                 "is_header": False,
@@ -231,9 +231,9 @@ def split_into_sentences(pages):
                 except:
                     continue
 
-        if page_sentences:
-            repaired_sentences = repair_sentences(page_sentences, page_number)
+        if page_data:
+            repaired_data = repair_data(page_data, page_number)
             # Adding the repaired sentences to the final output list
-            sentences.extend(repaired_sentences)
+            data.extend(repaired_data)
 
-    return sentences
+    return data

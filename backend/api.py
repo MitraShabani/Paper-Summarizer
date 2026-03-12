@@ -39,11 +39,11 @@ async  def parse_file(file: UploadFile = File(...)):
         doc, pages_data = extract_blocks(file_path)
 
         # 2. Process the sentences
-        sentences = split_into_sentences(pages_data)
+        data = split_into_sentences(pages_data)
 
         # 3. Clean up and return
-        summary = summarize(sentences, compression_ratio=0.3)
-        return {"sentences": summary}
+        summary = summarize(data, compression_ratio=0.3)
+        return {"data": summary}
 
     except Exception as e:
         print(f"CRITICAL API ERROR: {e}")
@@ -72,10 +72,10 @@ async  def summarize_text(request: Request):
     if not text.strip():
         return {"error": "No text provided"}
 
-    sentences = split_text_into_sentences(text)
+    data = split_text_into_sentences(text)
 
-    summary = summarize(sentences, compression_ratio=0.3)
-    return {"sentences": summary}
+    summary = summarize(data, compression_ratio=0.3)
+    return {"data": summary}
 
 
 

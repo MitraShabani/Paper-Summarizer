@@ -1,9 +1,9 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
-def summarize(sentences, compression_ratio=0.3):
+def summarize(data, compression_ratio=0.3):
 
-    text_sentences = [s["sentence"] for s in sentences]
+    text_sentences = [s["sentence"] for s in data]
 
     """
     to build the unique vocabulary across all sentences and
@@ -25,12 +25,12 @@ def summarize(sentences, compression_ratio=0.3):
 
     scores = X.sum(axis=1)
     ranked = np.argsort(scores.A1)[::-1] # sort the array in descending order
-    top_k = int(len(sentences) * compression_ratio)
+    top_k = int(len(data) * compression_ratio)
 
     # Restore text order
     ranked = sorted(ranked[:top_k])
     summary = []
     for index in ranked:
-        summary.append(sentences[index])
+        summary.append(data[index])
 
     return summary
