@@ -18,7 +18,6 @@ if st.button("Submit"):
 
         # Send PDF to FastAPI
         if uploaded_file is not None:
-            # files = {"file": uploaded_file.getvalue()}
 
             response = requests.post(
                 "http://127.0.0.1:8000/parse",
@@ -43,38 +42,30 @@ if st.button("Submit"):
     # group sentences by header
     sections = {}
     if summary:
+
         for s in summary:
-            header = s.get("header")
+            header = s["header"]
 
             # replace None header
             if header is None:
-                header = "Other"
+                header = ""
 
             if header not in sections:
-                    sections[header] = []
+                sections[header] = []
 
-            page = s.get("page")
             sections[header].append({
                 "sentence": s["sentence"],
-                "page": page
+                "page": s["page"]
             })
 
-    # Display results
 
-        st.subheader("Summary")
-        summary_text = "\n".join(
-            f"{header}\n{' '.join([s['sentence'] for s in sentences])} (p.{sentences[-1]['page']})" for header, sentences in sections.items()
-            )
+        summary_text = ""
+        for header, sec in sections.items():
 
-    # instead of List comprehensions we can use regular 'for' :
-    # summary_text = ""
-    # for header, sents in sections.items():
-    #     section_sentences = ""
-    #     for s in sents:
-    #         section_sentences += s["sentence"] + " "
-    #     section_sentences = section_sentences.strip()  # remove trailing space
-    #     last_page = sents[-1]["page"]
-    #     summary_text += f"{header}\n{section_sentences} (p.{last_page})\n\n"
+            sentences = (s["sentence"] for s in sec)
+            pages = sec[-1]["page"]
+
+            summary_text += f"\n{header}\n{[s for s in sentences]} (p.{pages})\n"
 
         st.text_area("Full Summary", value=summary_text, height=400)
 

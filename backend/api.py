@@ -14,7 +14,6 @@ def read_root():
     return {"status": "Server running successfully!"}
 
 # app = FastAPI()
-
 @app.post("/parse")
 async  def parse_file(file: UploadFile = File(...)):
 

@@ -98,7 +98,6 @@ def repair_data(page_sentences, page_number):
         return repaired_data
 
 
-
 def split_text_into_sentences(text):
     """
     Split a plain string (text area input) into sentences using spaCy.
@@ -127,7 +126,6 @@ def split_into_sentences(pages):
     data = []
     for page in pages:
 
-
         page_number = page["page"]
         body_text_size = page["body_text_size"]
 
@@ -137,7 +135,8 @@ def split_into_sentences(pages):
         page_idx = page.get("page_index")
 
         page_data = []   # collecting sentences for the current page
-        previousBlock_y1 = 0.0
+        previousBlock_y1 = None
+        nextBlock_y0 = None
         current_header = None
         math_block_index = 0
 
@@ -145,12 +144,18 @@ def split_into_sentences(pages):
         with fitz.open(file_path) as tmp_doc:
             page_object = tmp_doc.load_page(page_idx)
 
-            for block_text, block_font_size, x0, y0, x1, y1 in page["blocks"]:
+            blocks = page["blocks"]
+            for i, (block_text, block_font_size, x0, y0, x1, y1) in enumerate(blocks):
 
                 block_coords = (x0, y0, x1, y1)
-
                 # HEADER DETECTION
-                header = detect_heading(block_text, block_font_size, body_text_size, y0, previousBlock_y1)
+
+                # consider space before and after header
+                previousBlock_y1 = blocks[i-1][5] if i > 0 else None
+                nextBlock_y0 = blocks[i+1][3] if i < len(blocks)-1 else None
+
+                header = detect_heading(block_text, block_font_size, body_text_size, y0, y1, previousBlock_y1, nextBlock_y0)
+
                 if header:
                     current_header = header
                     page_data.append({
@@ -158,10 +163,17 @@ def split_into_sentences(pages):
                         "header": None,
                         "is_header": True
                     })
+
                     previousBlock_y1 = y1
                     continue
 
+                print("TEXT:", block_text)
+                print("FONT:", block_font_size, "BODY:", body_text_size)
+                print("Y0:", y0, "PREV:", previousBlock_y1)
+                print("------")
+
                 # FORMULA DETECTION
+
                 if is_formula_block(block_text, block_font_size, body_text_size):
 
                         # Render the block to an image file
